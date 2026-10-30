@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Calculadora de Estiramiento de Tubos de Cobre</title>
+<style>
+body{font-family:system-ui,sans-serif;background:#f3f6f9;color:#17232d;margin:0}header{background:#123b5d;color:white;padding:25px 18px}main{max-width:760px;margin:auto;padding:16px}h1{font-size:1.7rem}section{background:white;border:1px solid #d8e1e8;border-radius:14px;padding:18px;margin:14px 0}.grid,.results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}label{display:block;font-weight:650;margin-bottom:6px}input{width:100%;box-sizing:border-box;padding:12px;border:1px solid #b9c8d3;border-radius:8px;font:inherit}.result{background:#eef5fa;border-radius:10px;padding:13px}.primary{grid-column:1/-1;background:#e5f3e9}.k{font-size:.9rem;color:#5b6b78}.v{font-size:1.55rem;font-weight:750;margin-top:5px;overflow-wrap:anywhere}.primary .v{font-size:2rem;color:#17643a}button{border:0;border-radius:8px;padding:12px 15px;margin:12px 8px 0 0;background:#246b9e;color:white;font:inherit;font-weight:650}.secondary{background:#e9eef2;color:#213645}.note{color:#5b6b78;line-height:1.55}.warning{background:#fff8e8;border-left:4px solid #d59a2a;padding:12px;line-height:1.5}@media(max-width:520px){.grid,.results{grid-template-columns:1fr}.primary{grid-column:auto}}
+</style></head><body>
+<header><h1>Calculadora de Estiramiento de Tubos de Cobre</h1>
+<p class="creator-credit" style="text-align:center;font-weight:600;margin:8px 0 16px;">Creada por Carlos Miranda</p><p>Estimación del largo final a partir del OD y espesor de pared. Medidas en pulgadas decimales.</p></header>
+<main>
+<section><h2>1. Medidas iniciales</h2><div class="grid">
+<div><label for="od0">OD inicial (in)</label><input id="od0" type="number" min="0.0001" step="0.001" value="2.125"></div>
+<div><label for="t0">Espesor inicial (in)</label><input id="t0" type="number" min="0.0001" step="0.001" value="0.042"></div>
+<div><label for="l0">Largo inicial (in)</label><input id="l0" type="number" min="0.0001" step="0.001" value="172"></div></div></section>
+<section><h2>2. Medidas solicitadas</h2><div class="grid">
+<div><label for="od1">OD final solicitado (in)</label><input id="od1" type="number" min="0.0001" step="0.001" value="1.850"></div>
+<div><label for="t1">Espesor final solicitado (in)</label><input id="t1" type="number" min="0.0001" step="0.001" value="0.035"></div></div></section>
+<section><h2>3. Resultados estimados</h2><div class="results" aria-live="polite">
+<div class="result primary"><div class="k">Largo final estimado</div><div class="v" id="finalLength">236.88 in</div></div>
+<div class="result"><div class="k">Aumento de largo</div><div class="v" id="increase">64.88 in</div></div>
+<div class="result"><div class="k">Elongación estimada</div><div class="v" id="elongation">37.72%</div></div>
+<div class="result"><div class="k">ID inicial calculado</div><div class="v" id="id0">2.041 in</div></div>
+<div class="result"><div class="k">ID final calculado</div><div class="v" id="id1">1.780 in</div></div></div>
+<div id="error" class="warning" style="display:none;margin-top:12px" role="alert"></div>
+<button id="reset" type="button">Restaurar ejemplo</button><button id="copy" type="button" class="secondary">Copiar resultados</button><p id="status" class="note" aria-live="polite"></p></section>
+<section><h2>Cómo se calcula</h2><p class="note">Se supone que el volumen del metal se conserva durante el estirado. El área de cobre es proporcional a espesor × (OD − espesor).</p>
+<p><strong>Largo final = Largo inicial × [t inicial × (OD inicial − t inicial)] ÷ [t final × (OD final − t final)]</strong></p>
+<div class="warning"><strong>Importante:</strong> resultado teórico, no garantía del largo real ni confirmación de que la reducción sea segura o alcanzable en una sola pasada. El resultado real depende de aleación, temple, proceso, pérdidas y tolerancias. Valida el cálculo con los procedimientos de calidad de tu planta.</div></section>
+</main><footer class="note" style="max-width:760px;margin:0 auto;padding:0 16px 24px">Los datos se calculan en este navegador; esta página no los envía ni guarda.</footer>
+<script>
+const ids=['od0','t0','l0','od1','t1'],E=id=>document.getElementById(id),fmt=n=>Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:3});
+function calc(){let v=Object.fromEntries(ids.map(id=>[id,Number(E(id).value)])),err=E('error');err.style.display='none';
+if(ids.some(id=>!Number.isFinite(v[id])||v[id]<=0)){err.textContent='Introduce números mayores que cero en todos los campos.';err.style.display='block';return}
+if(2*v.t0>=v.od0||2*v.t1>=v.od1){err.textContent='El espesor debe ser menor que la mitad del OD.';err.style.display='block';return}
+let id0=v.od0-2*v.t0,id1=v.od1-2*v.t1,a0=v.t0*(v.od0-v.t0),a1=v.t1*(v.od1-v.t1),fin=v.l0*a0/a1,inc=fin-v.l0;
+E('finalLength').textContent=fmt(fin)+' in';E('increase').textContent=fmt(inc)+' in';E('elongation').textContent=fmt(inc/v.l0*100)+'%';E('id0').textContent=fmt(id0)+' in';E('id1').textContent=fmt(id1)+' in';E('status').textContent=''}
+ids.forEach(id=>E(id).addEventListener('input',calc));
+E('reset').onclick=()=>{Object.entries({od0:'2.125',t0:'0.042',l0:'172',od1:'1.850',t1:'0.035'}).forEach(([id,v])=>E(id).value=v);calc()};
+E('copy').onclick=async()=>{let s=['Largo final estimado: '+E('finalLength').textContent,'Aumento: '+E('increase').textContent,'Elongación: '+E('elongation').textContent,'ID inicial: '+E('id0').textContent,'ID final: '+E('id1').textContent].join('\n');try{await navigator.clipboard.writeText(s);E('status').textContent='Resultados copiados.'}catch{E('status').textContent='No se pudo copiar automáticamente; selecciona los resultados manualmente.'}};
+calc();
+</script><footer style="text-align:center;color:#5b6b78;font-size:.9rem;padding:16px;">Creada por Carlos Miranda</footer>
+</body></html>
